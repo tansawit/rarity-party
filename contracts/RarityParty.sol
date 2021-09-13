@@ -3,7 +3,9 @@ pragma solidity 0.8.2;
 import "OpenZeppelin/openzeppelin-contracts@4.3.0/contracts/utils/structs/EnumerableSet.sol";
 import "OpenZeppelin/openzeppelin-contracts@4.3.0/contracts/token/ERC721/ERC721.sol";
 
-contract RarityParty {
+import "../interfaces/IRarityParty.sol";
+
+contract RarityParty is IRarityParty {
     using EnumerableSet for EnumerableSet.UintSet;
 
     address public constant rarity = 0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb;
@@ -38,17 +40,26 @@ contract RarityParty {
         _;
     }
 
-    function members() external view returns (uint256[] memory _partyMember) {
+    function members()
+        external
+        view
+        override
+        returns (uint256[] memory _partyMember)
+    {
         return _members.values();
     }
 
-    function addMembers(uint256[] calldata summonersArray) external onlyLeader {
+    function addMembers(uint256[] calldata summonersArray)
+        external
+        override
+        onlyLeader
+    {
         for (uint256 i; i < summonersArray.length; i++) {
             _addMember(summonersArray[i]);
         }
     }
 
-    function addMember(uint256 summonerID) external onlyLeader {
+    function addMember(uint256 summonerID) external override onlyLeader {
         _addMember(summonerID);
     }
 
@@ -62,13 +73,16 @@ contract RarityParty {
         _members.add(_summoner);
     }
 
-    function getSummonersFromParty(uint256[] calldata summonersArray) external {
+    function getSummonersFromParty(uint256[] calldata summonersArray)
+        external
+        override
+    {
         for (uint256 i; i < summonersArray.length; i++) {
             _getSummonerFromParty(summonersArray[i]);
         }
     }
 
-    function getSummonerFromParty(uint256 summoner) external {
+    function getSummonerFromParty(uint256 summoner) external override {
         _getSummonerFromParty(summoner);
     }
 
@@ -88,6 +102,7 @@ contract RarityParty {
 
     function forceSummonersOffParty(uint256[] calldata summonersArray)
         external
+        override
         onlyLeader
     {
         for (uint256 i; i < summonersArray.length; i++) {
@@ -95,7 +110,11 @@ contract RarityParty {
         }
     }
 
-    function forceSummonerOffParty(uint256 summoner) external onlyLeader {
+    function forceSummonerOffParty(uint256 summoner)
+        external
+        override
+        onlyLeader
+    {
         _forceSummonerOffParty(summoner);
     }
 
@@ -109,7 +128,15 @@ contract RarityParty {
         _members.remove(summoner);
     }
 
-    function disband() external {
+    function action(address destContract, bytes memory data)
+        external
+        override
+        onlyLeader
+    {
+        destContract.call(data);
+    }
+
+    function disband() external override {
         require(msg.sender == factory, "disband-called-outside-of-factory");
         for (uint256 i; i < _members.length(); i++) {
             _forceSummonerOffParty(_members.at(i));

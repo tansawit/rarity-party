@@ -1,8 +1,9 @@
 pragma solidity 0.8.2;
 
+import "../interfaces/IRarityPartyFactory.sol";
 import "./RarityParty.sol";
 
-contract RarityPartyFactory {
+contract RarityPartyFactory is IRarityPartyFactory {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     EnumerableSet.AddressSet internal _parties;
@@ -28,7 +29,7 @@ contract RarityPartyFactory {
         address _partyFactory,
         string memory _name,
         string memory _description
-    ) external returns (address partyAddress) {
+    ) external override returns (address partyAddress) {
         require(!inParty[summonerID], "summoner-already-in-party");
         RarityParty party = new RarityParty(
             _partyFactory,
@@ -43,11 +44,16 @@ contract RarityPartyFactory {
         return address(party);
     }
 
-    function parties() external view returns (address[] memory _partiesList) {
+    function parties()
+        external
+        view
+        override
+        returns (address[] memory _partiesList)
+    {
         return _parties.values();
     }
 
-    function disbandParty(address partyAddress) external {
+    function disbandParty(address partyAddress) external override {
         RarityParty party = RarityParty(partyAddress);
         party.disband();
         _parties.remove(partyAddress);
