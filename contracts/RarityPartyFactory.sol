@@ -24,6 +24,15 @@ contract RarityPartyFactory is IRarityPartyFactory {
         uint256 leadSummoner
     );
 
+    function parties()
+        external
+        view
+        override
+        returns (address[] memory _partiesList)
+    {
+        return _parties.values();
+    }
+
     function createParty(
         uint256 summonerID,
         address _partyFactory,
@@ -38,19 +47,10 @@ contract RarityPartyFactory is IRarityPartyFactory {
             _name,
             _description
         );
-
         _parties.add(address(party));
+
         emit PartyCreated(address(party), _name, _description, summonerID);
         return address(party);
-    }
-
-    function parties()
-        external
-        view
-        override
-        returns (address[] memory _partiesList)
-    {
-        return _parties.values();
     }
 
     function disbandParty(address partyAddress) external override {

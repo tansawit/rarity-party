@@ -4,11 +4,13 @@ import "OpenZeppelin/openzeppelin-contracts@4.3.0/contracts/utils/structs/Enumer
 import "OpenZeppelin/openzeppelin-contracts@4.3.0/contracts/token/ERC721/ERC721.sol";
 
 import "../interfaces/IRarityParty.sol";
+import "./RartiyUtils.sol";
 
 contract RarityParty is IRarityParty {
     using EnumerableSet for EnumerableSet.UintSet;
 
     address public constant rarity = 0xce761D788DF608BD21bdd59d6f4B54b2e27F25Bb;
+    address public immutable rarityUtils;
 
     string public name;
     string public description;
@@ -22,12 +24,14 @@ contract RarityParty is IRarityParty {
 
     constructor(
         address _factory,
+        address _utils,
         uint256 _leader,
         address _leaderOwner,
         string memory _name,
         string memory _description
     ) {
         factory = _factory;
+        rarityUtils = _utils;
         leader = _leader;
         leaderOwner = _leaderOwner;
 
@@ -64,6 +68,10 @@ contract RarityParty is IRarityParty {
     }
 
     function _addMember(uint256 _summoner) internal {
+        require(
+            rarityUtils._isApprovedOrOwner(summonerID),
+            "not-owner-or-approved"
+        );
         IERC721(address(rarity)).transferFrom(
             msg.sender,
             address(this),
